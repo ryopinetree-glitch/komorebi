@@ -1,0 +1,560 @@
+<!-- ... existing code ... -->
+      <!-- さりげない木漏れ日のしずくカウンター ＆ AI接続設定 -->
+      <div class="flex items-center space-x-2">
+        <button
+          type="button"
+          onclick="openApiKeyModal()"
+          id="aiStatusBtn"
+          class="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-full bg-white/85 hover:bg-emerald-50 border border-emerald-900/10 text-xs font-medium text-komorebi-ink transition"
+          title="Gemini AIの接続設定"
+        >
+          <span id="aiStatusDot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+          <span id="aiStatusLabel" class="text-[11px]">AI設定</span>
+        </button>
+
+        <button
+          type="button"
+          onclick="switchTab('garden')"
+          class="flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-white/80 hover:bg-amber-50 border border-amber-200/70 text-xs font-medium text-amber-900 transition"
+          title="がんばり貯金を見る"
+        >
+          <span>☀️</span>
+          <span id="headerDropsCount" class="font-bold text-komorebi-green">0</span>
+          <span class="text-[11px] text-komorebi-muted">しずく</span>
+        </button>
+      </div>
+    </div>
+  </header>
+<!-- ... existing code ... -->
+          <div class="bg-komorebi-sunLight/60 rounded-2xl p-4 border border-amber-300/30 flex items-start gap-3">
+            <span class="text-lg">👣</span>
+            <div>
+              <span class="text-xs font-bold text-amber-900 block">④ 元気をつくる1ミリのアクション</span>
+              <p id="resAction" class="text-sm text-amber-950 mt-0.5 leading-relaxed"></p>
+            </div>
+          </div>
+
+          <!-- 外部環境でAPIキー未設定時のみ表示する案内バナー -->
+          <div id="aiFallbackNotice" class="hidden rounded-2xl bg-amber-50 border border-amber-300/80 p-3.5 text-xs text-amber-950 space-y-2">
+            <p class="leading-relaxed">
+              ⚠️ 現在、外部サイト（ホーム画面起動など）で <strong>Gemini APIキー</strong> が未設定のため、基本メッセージを表示しています。無料のAPIキーを1回登録すると、あなたが書いた内容に合わせた個別の分析が動くようになります。
+            </p>
+            <button
+              type="button"
+              onclick="openApiKeyModal()"
+              class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs transition"
+            >
+              🔑 Gemini APIキーを設定してAIを有効にする
+            </button>
+          </div>
+        </div>
+      </div>
+<!-- ... existing code ... -->
+  <!-- Gemini APIキー設定モーダル（外部公開環境でAIを稼働させるため） -->
+  <div id="apiKeyModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-emerald-900/10 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-rounded font-bold text-base text-komorebi-ink flex items-center gap-2">
+          <span>✨ Gemini AI 連携設定</span>
+        </h3>
+        <button type="button" onclick="closeApiKeyModal()" class="p-1.5 rounded-full hover:bg-gray-100 text-komorebi-muted">✕</button>
+      </div>
+
+      <p class="text-xs text-komorebi-muted leading-relaxed">
+        Netlify等の外部サイトに公開してホーム画面から使う場合、Googleの無料 <strong>Gemini APIキー</strong> を一度入力すると、あなた専用の深い分析や最新の動画・記事提案が毎回稼働します。
+      </p>
+
+      <div class="bg-komorebi-bg rounded-2xl p-3.5 text-xs text-komorebi-ink space-y-1.5">
+        <div class="font-bold text-komorebi-greenDark">📋 無料APIキーの取得手順（約1分）</div>
+        <ol class="list-decimal list-inside space-y-1 text-[11px] text-komorebi-muted">
+          <li>下の「Google AI Studio を開く」をタップしGoogleアカウントでログイン</li>
+          <li>「APIキーを作成（Create API key）」を押してコピー</li>
+          <li>下の入力欄に貼り付けて「保存する」をタップ</li>
+        </ol>
+        <div class="pt-1">
+          <a
+            href="https://aistudio.google.com/app/apikey"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-1 text-xs font-bold text-komorebi-green underline hover:text-komorebi-greenDark"
+          >
+            <span>🔗 Google AI Studio を開く（無料）</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <label for="geminiApiKeyInput" class="text-xs font-bold text-komorebi-ink block">Gemini APIキー（AIza...）</label>
+        <input
+          id="geminiApiKeyInput"
+          type="password"
+          placeholder="AIzaSy..."
+          class="w-full rounded-2xl bg-komorebi-bg border border-emerald-900/15 focus:border-komorebi-green px-4 py-3 text-sm outline-none"
+        >
+        <p class="text-[11px] text-komorebi-muted">※入力したキーはあなたのスマホのブラウザ内だけに保存され、他人に送信されることはありません。</p>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-1">
+        <button
+          type="button"
+          onclick="clearSavedApiKey()"
+          class="px-3.5 py-2.5 rounded-2xl text-xs font-medium text-rose-600 hover:bg-rose-50 transition"
+        >
+          削除
+        </button>
+        <button
+          type="button"
+          onclick="saveApiKeyFromModal()"
+          class="px-5 py-2.5 rounded-2xl bg-komorebi-green hover:opacity-95 text-white text-xs sm:text-sm font-bold transition shadow-xs"
+        >
+          保存してAIを有効にする
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- アプリケーションロジック -->
+  <script>
+    // =========================================================================
+    // 1. 状態管理（LocalStorage による永続化）
+    // =========================================================================
+    const STORAGE_KEYS = {
+      JOURNALS: 'komorebi_journals_v1',
+      EFFORTS: 'komorebi_efforts_v1',
+      API_KEY: 'komorebi_gemini_api_key_v1'
+    };
+
+    let selectedCategory = '自信・自己評価のギャップ';
+    let currentDiscoverFilter = 'all';
+    let lastAnalyzedText = '';
+    let activeCurations = [];
+    let sessionAiConnected = false;
+// ... existing code ...
+    // =========================================================================
+    // 2. 初期化処理
+    // =========================================================================
+    window.onload = function() {
+      try {
+        activeCurations = [...DEFAULT_CURATIONS];
+        setupCategoryChips();
+        renderPromptStarters();
+        setupEnergySlider();
+        renderJournalHistory();
+        renderCurations(activeCurations);
+        renderEffortGarden();
+        updateAiStatusIndicator();
+      } catch (err) {
+        console.warn('初期化エラー:', err);
+      }
+    };
+
+    function getEffectiveApiKey() {
+      try {
+        return (localStorage.getItem(STORAGE_KEYS.API_KEY) || '').trim();
+      } catch {
+        return '';
+      }
+    }
+
+    function updateAiStatusIndicator() {
+      const dot = document.getElementById('aiStatusDot');
+      const label = document.getElementById('aiStatusLabel');
+      if (!dot || !label) return;
+
+      const hasKey = Boolean(getEffectiveApiKey()) || sessionAiConnected;
+      if (hasKey) {
+        dot.classList.remove('bg-amber-400');
+        dot.classList.add('bg-emerald-500');
+        label.textContent = 'AI稼働中';
+      } else {
+        dot.classList.remove('bg-emerald-500');
+        dot.classList.add('bg-amber-400');
+        label.textContent = 'AI設定';
+      }
+    }
+
+    function openApiKeyModal() {
+      const modal = document.getElementById('apiKeyModal');
+      const input = document.getElementById('geminiApiKeyInput');
+      if (input) input.value = getEffectiveApiKey();
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function closeApiKeyModal() {
+      const modal = document.getElementById('apiKeyModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function saveApiKeyFromModal() {
+      const input = document.getElementById('geminiApiKeyInput');
+      const val = (input?.value || '').trim();
+      if (!val) {
+        showToast('APIキーを入力してください 🔑');
+        return;
+      }
+      localStorage.setItem(STORAGE_KEYS.API_KEY, val);
+      updateAiStatusIndicator();
+      closeApiKeyModal();
+      const notice = document.getElementById('aiFallbackNotice');
+      if (notice) notice.classList.add('hidden');
+      showToast('Gemini AI を有効にしました！✨');
+    }
+
+    function clearSavedApiKey() {
+      localStorage.removeItem(STORAGE_KEYS.API_KEY);
+      sessionAiConnected = false;
+      const input = document.getElementById('geminiApiKeyInput');
+      if (input) input.value = '';
+      updateAiStatusIndicator();
+      closeApiKeyModal();
+      showToast('保存されていたAPIキーを削除しました');
+    }
+
+    // =========================================================================
+    // 3. UIインタラクション
+// ... existing code ...
+      const btn = document.getElementById('analyzeBtn');
+      const originalHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="animate-pulse">✨ Geminiがあなたの言葉を読み込んで考えています…</span>`;
+      lastAnalyzedText = text;
+
+      const fallbackNotice = document.getElementById('aiFallbackNotice');
+      if (fallbackNotice) fallbackNotice.classList.add('hidden');
+
+      try {
+        const aiResult = await analyzeWorryWithGemini(selectedCategory, text, energy);
+        sessionAiConnected = true;
+        updateAiStatusIndicator();
+        displayAiResponse(selectedCategory, aiResult, false);
+        saveJournalEntry({
+          id: Date.now(),
+          date: new Date().toLocaleDateString('ja-JP', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+          category: selectedCategory,
+          energy: energy,
+          text: text,
+          feedback: aiResult
+        });
+        inputEl.value = '';
+        showToast('Geminiが気持ちを整理してノートに保存しました 🌱');
+      } catch (err) {
+        const fallbackResult = buildFallbackAnalysis(selectedCategory, text, energy);
+        displayAiResponse(selectedCategory, fallbackResult, true);
+        saveJournalEntry({
+          id: Date.now(),
+          date: new Date().toLocaleDateString('ja-JP', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+          category: selectedCategory,
+          energy: energy,
+          text: text,
+          feedback: fallbackResult
+        });
+        inputEl.value = '';
+        showToast('APIキー未設定のため基本メッセージを表示しました');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+      }
+    }
+
+    async function analyzeWorryWithGemini(category, text, energy) {
+      const apiKey = getEffectiveApiKey();
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+      const systemPrompt = `あなたは優しく知的な心理カウンセラー兼ライフコーチ「komorebi（コモレビ）」です。
+ユーザーは日々とても頑張っており、外見や形式的な条件・周囲からの評価にも恵まれている面がありながら、内面では自信が持てなかったり、日頃のモヤモヤ・恋愛・人生の悩みを抱えています。
+
+【重要ルール】
+- 決して一般的なテンプレートのような返答はせず、ユーザーが書いた「具体的な言葉・エピソード・感情」に必ず直接触れて分析してください。
+- 以下の4つの要素を、温かく押し付けがましくない日本語のJSONで返してください。
+1. empathy: ユーザーが書いてくれた具体的な状況とこれまでの努力を深く受け止める共感メッセージ（3〜4文）
+2. insight: なぜそのモヤモヤや自信のなさが起きるのか、ユーザーが書いた内容に即した心理的な背景・構造の優しい紐解き（3〜4文）
+3. reframe: 同じ状況を別の角度から見た、ハッとするような「視点の転換（リフレーミング）」（2〜3文）
+4. action: 今のエネルギー残量（${energy}%）でも無理なくできる、具体的で小さな1ミリの行動提案（1〜2文）`;
+
+      const payload = {
+        contents: [{
+          parts: [{
+            text: `テーマ: ${category}\n今のエネルギー残量: ${energy}%\nユーザーの言葉:\n${text}`
+          }]
+        }],
+        systemInstruction: {
+          parts: [{ text: systemPrompt }]
+        },
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "OBJECT",
+            properties: {
+              empathy: { type: "STRING" },
+              insight: { type: "STRING" },
+              reframe: { type: "STRING" },
+              action: { type: "STRING" }
+            },
+            required: ["empathy", "insight", "reframe", "action"]
+          }
+        }
+      };
+
+      const result = await fetchWithBackoff(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const rawJson = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!rawJson) throw new Error('Empty response');
+      return JSON.parse(rawJson);
+    }
+// ... existing code ...
+    function displayAiResponse(category, data, isFallback = false) {
+      const container = document.getElementById('aiResponseContainer');
+      document.getElementById('responseCategoryTag').textContent = `テーマ：${category}`;
+      document.getElementById('resEmpathy').textContent = data.empathy;
+      document.getElementById('resInsight').textContent = data.insight;
+      document.getElementById('resReframe').textContent = data.reframe;
+      document.getElementById('resAction').textContent = data.action;
+
+      const notice = document.getElementById('aiFallbackNotice');
+      if (notice) {
+        if (isFallback && !getEffectiveApiKey()) {
+          notice.classList.remove('hidden');
+        } else {
+          notice.classList.add('hidden');
+        }
+      }
+
+      container.classList.remove('hidden');
+      container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function jumpToCuratedForCurrentTopic() {
+      const topicInput = document.getElementById('curateTopicInput');
+      const summaryQuery = lastAnalyzedText
+        ? `${selectedCategory}（${lastAnalyzedText.slice(0, 45)}）`
+        : selectedCategory;
+      topicInput.value = summaryQuery;
+      switchTab('discover');
+      fetchFreshCuration();
+    }
+// ... existing code ...
+    // =========================================================================
+    // 6. 2方向キュレーション（気分転換 ＆ 視点転換・解決の糸口）
+    // =========================================================================
+    function setDiscoverFilter(filter) {
+      currentDiscoverFilter = filter;
+      document.querySelectorAll('.discover-filter-btn').forEach(btn => {
+        if (btn.dataset.filter === filter) {
+          btn.classList.add('bg-white', 'text-komorebi-ink', 'font-bold', 'shadow-2xs');
+          btn.classList.remove('text-komorebi-muted', 'font-medium');
+        } else {
+          btn.classList.remove('bg-white', 'text-komorebi-ink', 'font-bold', 'shadow-2xs');
+          btn.classList.add('text-komorebi-muted', 'font-medium');
+        }
+      });
+      renderCurations(activeCurations);
+    }
+// ... existing code ...
+    async function fetchFreshCuration() {
+      const topic = document.getElementById('curateTopicInput').value.trim() || selectedCategory;
+      const btn = document.getElementById('curateFetchBtn');
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="animate-pulse">Geminiが探索中…</span>`;
+
+      const resultsBox = document.getElementById('liveCurationResults');
+      const cardsContainer = document.getElementById('liveCurationCards');
+
+      try {
+        const apiKey = getEffectiveApiKey();
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+        const prompt = `ユーザーの今の悩み・テーマ：「${topic}」
+このユーザーを元気づけるために、以下の2つの方向から具体的な動画・記事・サイトの提案を合計4件（各2件ずつ）作成してください。
+
+1. type: "refresh"（🎈 気分転換・笑い）：悩みから一度離れてホッと笑えたり、癒やされたり、頭を切り替えられる面白い動画・サイト・読み物（2件）
+2. type: "insight"（💡 視点転換・糸口）：モヤモヤの背景に気づけたり、自己肯定感や恋愛・人生の解決の糸口になる心理学コラム・解説動画・記事（2件）
+
+必ず以下のJSON形式のみを \`\`\`json ブロックで出力してください。searchQueryにはYouTubeやGoogle検索で実際に良質な動画・記事がヒットしやすい日本語キーワードを入れてください。
+\`\`\`json
+{
+  "items": [
+    {
+      "type": "refresh",
+      "badge": "🎈 気分転換・笑い",
+      "title": "具体的な動画や記事のテーマタイトル",
+      "summary": "なぜ今の気分転換にぴったりなのかの具体的な説明（80〜120文字）",
+      "tag": "ジャンルタグ",
+      "searchQuery": "検索キーワード"
+    },
+    {
+      "type": "insight",
+      "badge": "💡 視点転換・糸口",
+      "title": "具体的な記事や解説のテーマタイトル",
+      "summary": "どんな気づきや解決の糸口が得られるかの具体的な説明（80〜120文字）",
+      "tag": "ジャンルタグ",
+      "searchQuery": "検索キーワード"
+    }
+  ]
+}
+\`\`\``;
+
+        const payload = {
+          contents: [{ parts: [{ text: prompt }] }],
+          tools: [{ google_search: {} }]
+        };
+
+        const result = await fetchWithBackoff(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        sessionAiConnected = true;
+        updateAiStatusIndicator();
+
+        const candidate = result?.candidates?.[0];
+        const rawText = candidate?.content?.parts?.map(p => p.text || '').join('\n') || '';
+
+        let sources = [];
+        const attributions = candidate?.groundingMetadata?.groundingAttributions || [];
+        sources = attributions
+          .map(a => ({ uri: a.web?.uri, title: a.web?.title }))
+          .filter(s => s.uri && s.title)
+          .slice(0, 5);
+
+        const jsonMatch = rawText.match(/```json\s*([\s\S]*?)\s*```/) || rawText.match(/\{[\s\S]*\}/);
+        const parsed = jsonMatch ? JSON.parse(jsonMatch[1] || jsonMatch[0]) : null;
+
+        if (parsed && Array.isArray(parsed.items) && parsed.items.length > 0) {
+          activeCurations = parsed.items.map((item, idx) => ({
+            id: `ai-cur-${Date.now()}-${idx}`,
+            type: item.type === 'refresh' ? 'refresh' : 'insight',
+            badge: item.type === 'refresh' ? '🎈 気分転換・笑い' : '💡 視点転換・糸口',
+            title: item.title,
+            summary: item.summary,
+            tag: item.tag || 'AIおすすめ',
+            searchQuery: item.searchQuery || item.title
+          }));
+          renderCurations(activeCurations);
+
+          if (sources.length > 0) {
+            cardsContainer.innerHTML = `
+              <div class="bg-gradient-to-br from-white to-amber-50/60 rounded-2xl p-4 shadow-2xs border border-amber-200/80 space-y-2">
+                <span class="text-xs font-bold text-amber-900 block">🔗 Web検索で見つかった参考記事・ページ（直接開けます）：</span>
+                <div class="flex flex-col gap-1.5">
+                  ${sources.map(s => `
+                    <a href="${escapeHtml(s.uri)}" target="_blank" rel="noopener noreferrer" class="text-xs text-komorebi-green underline hover:text-komorebi-greenDark truncate">
+                      ・${escapeHtml(s.title)}
+                    </a>
+                  `).join('')}
+                </div>
+              </div>
+            `;
+            resultsBox.classList.remove('hidden');
+          } else {
+            resultsBox.classList.add('hidden');
+          }
+          showToast('Geminiが今の気持ちに合わせて提案を更新しました ✨');
+        } else if (rawText) {
+          cardsContainer.innerHTML = `
+            <div class="bg-gradient-to-br from-white to-amber-50/60 rounded-3xl p-5 shadow-soft border border-amber-200/80 space-y-3">
+              <div class="text-xs font-bold text-amber-900">✨ 「${escapeHtml(topic)}」のためのGeminiピックアップ</div>
+              <div class="text-xs sm:text-sm text-komorebi-ink leading-relaxed whitespace-pre-line">${escapeHtml(rawText)}</div>
+            </div>
+          `;
+          resultsBox.classList.remove('hidden');
+          showToast('Geminiが提案を作成しました ✨');
+        } else {
+          throw new Error('No text returned');
+        }
+      } catch {
+        const refreshQuery = `${topic} 気分転換 癒やし 面白い 動画`;
+        const insightQuery = `${topic} 心理学 考え方 解決 ヒント`;
+
+        cardsContainer.innerHTML = `
+          <div class="space-y-3">
+            ${!getEffectiveApiKey() ? `
+              <div class="bg-amber-50 border border-amber-300/80 rounded-2xl p-3.5 text-xs text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <span>⚠️ Geminiに個別の提案を考えさせるにはAPIキーの設定が必要です。</span>
+                <button type="button" onclick="openApiKeyModal()" class="px-3 py-1.5 rounded-xl bg-amber-500 text-white font-bold text-xs shrink-0">
+                  🔑 APIキー設定
+                </button>
+              </div>
+            ` : ''}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="bg-amber-50/90 rounded-2xl p-4 border border-amber-200/80 space-y-2">
+                <span class="text-xs font-bold text-amber-900">🎈 気分転換・リフレッシュ方向</span>
+                <p class="text-xs text-komorebi-ink leading-relaxed">「${escapeHtml(topic)}」から一度頭を切り替えるための、笑える・癒やされる動画やほっこり記事を探せます。</p>
+                <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(refreshQuery)}" target="_blank" rel="noopener noreferrer" class="inline-block px-3 py-1.5 rounded-xl bg-amber-500 text-white text-xs font-bold">
+                  ▶ 気分転換の動画を見る
+                </a>
+              </div>
+              <div class="bg-komorebi-greenLight/80 rounded-2xl p-4 border border-komorebi-green/20 space-y-2">
+                <span class="text-xs font-bold text-komorebi-greenDark">💡 視点転換・解決の糸口方向</span>
+                <p class="text-xs text-komorebi-ink leading-relaxed">「${escapeHtml(topic)}」の背景にある心の仕組みや、新しい捉え方のヒントになる記事を探せます。</p>
+                <a href="https://www.google.com/search?q=${encodeURIComponent(insightQuery)}" target="_blank" rel="noopener noreferrer" class="inline-block px-3 py-1.5 rounded-xl bg-komorebi-green text-white text-xs font-bold">
+                  📖 視点が変わる記事を読む
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+        resultsBox.classList.remove('hidden');
+        showToast('検索リンクを用意しました 🌱');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      }
+    }
+// ... existing code ...
+      try {
+        const apiKey = getEffectiveApiKey();
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+        const prompt = `あなたは温かく誠実な伴走者「komorebi」です。
+ユーザーがこれまで積み重ねた「がんばり記録」と「向き合っている気持ち」をもとに、ユーザーが自分自身に根拠のある自信を持てるような短い応援レター（250〜350文字程度）を書いてください。
+お世辞ではなく、記録された事実と、自分の心と向き合おうとする姿勢の尊さを具体的に讃えてください。
+
+【最近のがんばり記録】
+${efforts.length > 0 ? efforts.join('\n') : '・今日も自分の心と向き合い、前向きに過ごそうとしている'}
+
+【向き合っている気持ち】
+${journals.length > 0 ? journals.join('\n') : '・頑張っているのに自信が持てない気持ちや、日々のモヤモヤと向き合っている'}`;
+
+        const payload = {
+          contents: [{ parts: [{ text: prompt }] }]
+        };
+
+        const result = await fetchWithBackoff(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const letter = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!letter) throw new Error('Empty letter');
+
+        sessionAiConnected = true;
+        updateAiStatusIndicator();
+        dateEl.textContent = new Date().toLocaleDateString('ja-JP');
+        textEl.textContent = letter.trim();
+        box.classList.remove('hidden');
+        showToast('Geminiからあなたへの応援レターが届きました ✉️');
+      } catch {
+        const sampleEffort = efforts[0] || '今日という一日を丁寧に始めようとしていること';
+        dateEl.textContent = new Date().toLocaleDateString('ja-JP');
+        textEl.textContent = `いつも本当にたくさんのことを考え、誠実に日々を積み重ねているあなたへ。\n\n「${sampleEffort}」をはじめ、あなたが普段「当たり前」だと思ってこなしている一つひとつの行動は、決して誰にでもできることではありません。外側が整っていても心が揺れるのは、あなたが自分の人生や周りの人に対して真剣で優しいからこそです。\n\nどうか今日は、結果や完璧さではなく「今日もよく向き合ったね」と、一番近くにいるあなた自身が味方になってあげてください。あなたはもう十分に素敵で、自信を持って歩いていい人です。`;
+        box.classList.remove('hidden');
+        if (!getEffectiveApiKey()) {
+          showToast('右上の「AI設定」からAPIキーを登録すると個別の手紙が届きます 🔑');
+        } else {
+          showToast('あなたへの応援レターが届きました ✉️');
+        }
+      } finally {
+// ... existing code ...
